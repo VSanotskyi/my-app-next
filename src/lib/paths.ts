@@ -1,14 +1,5 @@
-interface IPaths {
-  welcome: string;
-  contacts: string;
-  auth: {
-    signIn: string;
-    signUp: string;
-  };
-}
-
-export const PATHS: IPaths = {
-  welcome: '/welcome',
+export const PATHS = {
+  root: '/',
   contacts: '/contacts',
   auth: {
     signIn: '/signIn',

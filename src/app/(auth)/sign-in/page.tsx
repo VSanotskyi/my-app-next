@@ -12,20 +12,13 @@ import { API_ENDPOINTS } from '@/lib/api';
 
 import { lightTheme } from '@/theme';
 import Loader from '@/components/ui/loader/Loader';
-import { useAuth } from '@/context/AuthContext';
-import { localStorageKeys } from '@/lib/localStorageKeys';
 
 const Page = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { setUser, setAccessToken, setRefreshToken } = useAuth();
 
   const handleNavigateToSignUpPage = () => {
     router.push('/sign-up');
-  };
-
-  const handleNavigateToHomePage = () => {
-    router.push('/');
   };
 
   const formik = useFormik({
@@ -34,26 +27,12 @@ const Page = () => {
     onSubmit: async (values) => {
       try {
         setIsLoading(true);
+
         const { email, password } = values;
+
         const res = await axios.post(API_ENDPOINTS.signIn, { email, password });
+
         if (res.status === 200) {
-          const { data } = res;
-          const { user, session } = data;
-
-          const userPayload = {
-            id: user.id,
-            email: user.email,
-            name: user.user_metadata.user_name,
-          };
-
-          localStorage.setItem(localStorageKeys.accessToken, session.access_token);
-          localStorage.setItem(localStorageKeys.refreshToken, session.refresh_token);
-          localStorage.setItem(localStorageKeys.user, JSON.stringify(userPayload));
-
-          setUser(userPayload);
-          setAccessToken(session.access_token);
-          setRefreshToken(session.refresh_token);
-
           notifications.show({
             title: 'Success',
             message: 'User has been created successfully',
@@ -62,7 +41,7 @@ const Page = () => {
             color: lightTheme.colors!.success![9],
           });
 
-          handleNavigateToHomePage();
+          router.push('/contacts');
         }
       } catch (err) {
         let message = 'Something went wrong';

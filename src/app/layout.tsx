@@ -1,18 +1,27 @@
 import React from 'react';
-import { Providers } from './providers';
-import AppLayout from '@/components/layout/AppLayout';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
-// Глобальні стилі
+import AuthProvider from '@/components/providers/AuthProvider';
+import { ClientProviders } from '@/components/providers/ClientProviders';
+
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabase = createServerComponentClient({ cookies });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const accessToken = session?.access_token || null;
+
   return (
-    <html lang="en" suppressHydrationWarning={true} data-lt-installed={true}>
-      <body suppressHydrationWarning={true}>
-        <Providers>
-          <AppLayout>{children}</AppLayout>
-        </Providers>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <AuthProvider accessToken={accessToken}>
+          <ClientProviders>{children}</ClientProviders>
+        </AuthProvider>
       </body>
     </html>
   );

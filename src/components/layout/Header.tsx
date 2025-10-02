@@ -7,6 +7,12 @@ import { IconX } from '@tabler/icons-react';
 import { Logo } from '@/components/ui/logo/Logo';
 import { useTheme } from '@/context/ThemeContext';
 import { useState } from 'react';
+import axios from 'axios';
+import { API_ENDPOINTS } from '@/lib/api';
+import { notifications } from '@mantine/notifications';
+import { lightTheme } from '@/theme';
+import Loader from '@/components/ui/loader/Loader';
+import { useUser } from '@supabase/auth-helpers-react';
 
 enum AuthRoutes {
   SignIn = '/sign-in',
@@ -23,23 +29,60 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [opened, { toggle: toggleBurgerMenu }] = useDisclosure();
   const { toggleColorScheme, colorScheme, getColor } = useTheme();
+  const [isLoading, setIsLoading] = useState(false);
   // temp
-  const [isAuth, setIsAuth] = useState(true);
+  const user = useUser();
 
   const handleNavigate = (link: AuthRoutes) => {
     void router.push(link);
   };
 
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      const res = await axios.get(API_ENDPOINTS.signOut);
+
+      if (res.status === 200) {
+        notifications.show({
+          title: 'Success',
+          message: 'User has been logged out successfully',
+          autoClose: 3000,
+          position: 'top-right',
+          color: lightTheme.colors!.success![9],
+        });
+
+        router.push('/');
+      }
+    } catch (error) {
+      const e = error as Error;
+      notifications.show({
+        title: 'Success',
+        message: e.message || 'An error occurred. Please try again later.',
+        autoClose: 3000,
+        position: 'top-right',
+        color: lightTheme.colors!.error![9],
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Flex justify="space-between" p="sm">
+      <Loader isLoading={isLoading} />
       <Logo />
-      {isAuth ? (
-        <Flex gap={8} align={'center'}>
+      {user ? (
+        <Flex gap={12} align={'center'}>
           <Button variant={'subtle'} color={getColor('text')} onClick={() => toggleColorScheme()}>
             {colorScheme === 'light' ? <IconMoonStars stroke={2} /> : <IconSunHigh stroke={2} />}
           </Button>
-          <IconUser stroke={2} />
-          <Text>UseName</Text>
+          <Flex gap={8} align={'center'}>
+            <IconUser stroke={2} />
+            <Text>{user?.email || 'User'}</Text>
+          </Flex>
+          <Button variant={'default'} onClick={logout}>
+            Log out
+          </Button>
         </Flex>
       ) : (
         <>

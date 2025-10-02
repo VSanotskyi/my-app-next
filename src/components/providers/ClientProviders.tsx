@@ -1,13 +1,18 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider, Flex } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { useTheme } from '@/context/ThemeContext';
-import { lightTheme, darkTheme } from '@/theme';
-import Header from '@/components/ui/header/Header';
 
-export default function AppLayout({ children }: { children: ReactNode }) {
+import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { lightTheme, darkTheme } from '@/theme';
+
+import Header from '@/components/layout/Header';
+
+const queryClient = new QueryClient();
+
+function AppLayout({ children }: { children: React.ReactNode }) {
   const { colorScheme, getColor } = useTheme();
 
   return (
@@ -25,8 +30,18 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         c={getColor('text')}
       >
         <Header />
-        {children}
+        <main>{children}</main>
       </Flex>
     </MantineProvider>
+  );
+}
+
+export function ClientProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AppLayout>{children}</AppLayout>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
