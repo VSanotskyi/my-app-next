@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useState } from 'react';
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { lightTheme, darkTheme } from '@/theme';
 
 type ColorScheme = 'light' | 'dark';
@@ -17,12 +17,25 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
 
-  const toggleColorScheme = () => setColorScheme(colorScheme === 'light' ? 'dark' : 'light');
+  const toggleColorScheme = () => {
+    const color = colorScheme === 'light' ? 'dark' : 'light';
+
+    localStorage.setItem('colorScheme', color);
+    setColorScheme(color);
+  };
 
   function getColor(key: ThemeColorKeys) {
     const theme = colorScheme === 'light' ? lightTheme : darkTheme;
     return theme.colors?.[key]?.[0] ?? '#000000';
   }
+
+  useEffect(() => {
+    const color = localStorage.getItem('colorScheme') as ColorScheme;
+
+    if (color) {
+      setColorScheme(color);
+    }
+  }, [colorScheme]);
 
   return (
     <ThemeContext.Provider value={{ colorScheme, toggleColorScheme, getColor }}>

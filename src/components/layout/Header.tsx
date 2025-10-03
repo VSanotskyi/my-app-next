@@ -25,12 +25,11 @@ const AuthLabels: Record<AuthRoutes, string> = {
 };
 
 const Header = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [opened, { toggle: toggleBurgerMenu }] = useDisclosure();
   const { toggleColorScheme, colorScheme, getColor } = useTheme();
-  const [isLoading, setIsLoading] = useState(false);
-  // temp
   const user = useUser();
 
   const handleNavigate = (link: AuthRoutes) => {

@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import axios from 'axios';
-import { Button, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core';
+import { Button, Flex, Modal, PasswordInput, Text, TextInput, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { useDisclosure } from '@mantine/hooks';
 
 import { signUpInitialValues, SignUpSchema } from '@/lib/authSchemas';
 import { API_ENDPOINTS } from '@/lib/api';
-
+import { PATHS } from '@/lib/paths';
 import { lightTheme } from '@/theme';
 
 import Loader from '@/components/ui/loader/Loader';
@@ -17,15 +18,12 @@ import Loader from '@/components/ui/loader/Loader';
 export default function Page() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleNavigateToSignInPage = () => {
-    router.push('/sign-in');
-  };
+  const [opened, { toggle: toggleOpenModal }] = useDisclosure();
 
   const formik = useFormik({
     initialValues: signUpInitialValues,
     validationSchema: SignUpSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       try {
         setIsLoading(true);
         const { email, password, name } = values;
@@ -39,8 +37,8 @@ export default function Page() {
             position: 'top-right',
             color: lightTheme.colors!.success![9],
           });
-
-          handleNavigateToSignInPage();
+          resetForm();
+          toggleOpenModal();
         }
       } catch (error) {
         const e = error as Error;
@@ -111,12 +109,15 @@ export default function Page() {
             type={'button'}
             variant={'transparent'}
             autoContrast={true}
-            onClick={handleNavigateToSignInPage}
+            onClick={() => router.push(PATHS.auth.signIn)}
           >
             Sign In
           </Button>
         </Text>
       </form>
+      <Modal opened={opened} onClose={toggleOpenModal} title={'Registration successful!'}>
+        <Text>Registration successful! Please confirm your email to complete the process.</Text>
+      </Modal>
     </Flex>
   );
 }

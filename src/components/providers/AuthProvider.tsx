@@ -4,13 +4,15 @@ import React, { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 
+import type { Database } from '@/types/supabase';
+
 interface AuthProviderProps {
   children: React.ReactNode;
   accessToken: string | null;
 }
 
 export default function AuthProvider({ children, accessToken }: AuthProviderProps) {
-  const [supabaseClient] = useState(() => createClientComponentClient());
+  const [supabaseClient] = useState(() => createClientComponentClient<Database | null>());
 
   return (
     <SessionContextProvider

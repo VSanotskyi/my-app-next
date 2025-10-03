@@ -8,8 +8,10 @@ import { ClientProviders } from '@/components/providers/ClientProviders';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
+import type { Database } from '@/types/supabase';
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createServerComponentClient<Database>({ cookies });
   const {
     data: { session },
   } = await supabase.auth.getSession();

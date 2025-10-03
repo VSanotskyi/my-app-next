@@ -9,17 +9,14 @@ import { notifications } from '@mantine/notifications';
 
 import { signInInitialValues, SignInSchema } from '@/lib/authSchemas';
 import { API_ENDPOINTS } from '@/lib/api';
-
+import { PATHS } from '@/lib/paths';
 import { lightTheme } from '@/theme';
+
 import Loader from '@/components/ui/loader/Loader';
 
 const Page = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleNavigateToSignUpPage = () => {
-    router.push('/sign-up');
-  };
 
   const formik = useFormik({
     initialValues: signInInitialValues,
@@ -41,7 +38,7 @@ const Page = () => {
             color: lightTheme.colors!.success![9],
           });
 
-          router.push('/contacts');
+          router.push(PATHS.contacts);
         }
       } catch (err) {
         let message = 'Something went wrong';
@@ -110,7 +107,7 @@ const Page = () => {
             type={'button'}
             variant={'transparent'}
             autoContrast={true}
-            onClick={handleNavigateToSignUpPage}
+            onClick={() => router.push(PATHS.auth.signUp)}
           >
             Sign up
           </Button>
