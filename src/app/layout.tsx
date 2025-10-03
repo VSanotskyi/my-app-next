@@ -8,6 +8,8 @@ import { ClientProviders } from '@/components/providers/ClientProviders';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
+import './globals.css';
+
 import type { Database } from '@/types/supabase';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

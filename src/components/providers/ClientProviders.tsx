@@ -23,14 +23,14 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <Notifications position="top-right" style={{ zIndex: 10000 }} />
       <Flex
         direction="column"
-        w="100vw"
-        h="100vh"
+        w="100%"
+        mih={'100%'}
         p={'0 20px'}
         bg={getColor('background')}
         c={getColor('text')}
       >
         <Header />
-        <main>{children}</main>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</main>
       </Flex>
     </MantineProvider>
   );
