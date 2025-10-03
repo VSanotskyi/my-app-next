@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import { Button, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { useSupabaseClient } from '@supabase/auth-helpers-react'; // <-- 1. ІМПОРТУЄМО ХУК
 
 import { signInInitialValues, SignInSchema } from '@/lib/authSchemas';
 import { API_ENDPOINTS } from '@/lib/api';
@@ -13,15 +14,17 @@ import { PATHS } from '@/lib/paths';
 import { lightTheme } from '@/theme';
 
 import Loader from '@/components/ui/loader/Loader';
+import { Database } from '@/types/supabase';
 
 const Page = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const supabase = useSupabaseClient<Database | null>();
 
   const formik = useFormik({
     initialValues: signInInitialValues,
     validationSchema: SignInSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       try {
         setIsLoading(true);
 
@@ -30,6 +33,8 @@ const Page = () => {
         const res = await axios.post(API_ENDPOINTS.signIn, { email, password });
 
         if (res.status === 200) {
+          await supabase.auth.refreshSession();
+
           notifications.show({
             title: 'Success',
             message: 'User has been created successfully',
@@ -38,6 +43,7 @@ const Page = () => {
             color: lightTheme.colors!.success![9],
           });
 
+          resetForm();
           router.push(PATHS.contacts);
         }
       } catch (err) {

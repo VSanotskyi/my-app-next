@@ -1,18 +1,18 @@
-import { Burger, Button, Flex, Group, Text } from '@mantine/core';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconSunHigh, IconMoonStars, IconUser } from '@tabler/icons-react';
+import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
+import { Burger, Button, Flex, Group, Text } from '@mantine/core';
+import { IconSunHigh, IconMoonStars, IconUser, IconX } from '@tabler/icons-react';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import { IconX } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+
+import { useTheme } from '@/context/ThemeContext';
+import { lightTheme } from '@/theme';
+import { PATHS } from '@/lib/paths';
+import { Database } from '@/types/supabase';
 
 import { Logo } from '@/components/ui/logo/Logo';
-import { useTheme } from '@/context/ThemeContext';
-import { useState } from 'react';
-import axios from 'axios';
-import { API_ENDPOINTS } from '@/lib/api';
-import { notifications } from '@mantine/notifications';
-import { lightTheme } from '@/theme';
 import Loader from '@/components/ui/loader/Loader';
-import { useUser } from '@supabase/auth-helpers-react';
 
 enum AuthRoutes {
   SignIn = '/sign-in',
@@ -31,6 +31,7 @@ const Header = () => {
   const [opened, { toggle: toggleBurgerMenu }] = useDisclosure();
   const { toggleColorScheme, colorScheme, getColor } = useTheme();
   const user = useUser();
+  const supabase = useSupabaseClient<Database | null>();
 
   const handleNavigate = (link: AuthRoutes) => {
     void router.push(link);
@@ -39,19 +40,31 @@ const Header = () => {
   const logout = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get(API_ENDPOINTS.signOut);
+      const { error } = await supabase.auth.signOut();
 
-      if (res.status === 200) {
+      if (error) {
         notifications.show({
-          title: 'Success',
-          message: 'User has been logged out successfully',
+          title: 'Error',
+          message: error.message || 'An error occurred during logout.',
           autoClose: 3000,
           position: 'top-right',
-          color: lightTheme.colors!.success![9],
+          color: lightTheme.colors!.error![9],
         });
-
-        router.push('/');
+        return;
       }
+
+      await supabase.auth.refreshSession();
+
+      notifications.show({
+        title: 'Success',
+        message: 'User has been logged out successfully',
+        autoClose: 3000,
+        position: 'top-right',
+        color: lightTheme.colors!.success![9],
+      });
+
+      router.refresh();
+      router.push(PATHS.root);
     } catch (error) {
       const e = error as Error;
       notifications.show({
