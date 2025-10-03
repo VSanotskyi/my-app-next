@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
-import { Burger, Button, Flex, Group, Text } from '@mantine/core';
-import { IconSunHigh, IconMoonStars, IconUser, IconX } from '@tabler/icons-react';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { Button, Flex } from '@mantine/core';
+import {
+  IconSunHigh,
+  IconMoonStars,
+  IconUser,
+  IconLogout2,
+  IconLogin,
+  IconUserPlus,
+} from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 
 import { useTheme } from '@/context/ThemeContext';
@@ -13,21 +20,28 @@ import { Database } from '@/types/supabase';
 
 import { Logo } from '@/components/ui/logo/Logo';
 import Loader from '@/components/ui/loader/Loader';
+import CustomDrawer from '@/components/ui/customDrawer/CustomDrawer';
+import UserMenu from '@/components/ui/menu/UserMenu';
+import Menu from '@/components/ui/menu/Menu';
 
-enum AuthRoutes {
+export enum AuthRoutes {
   SignIn = '/sign-in',
   SignUp = '/sign-up',
 }
 
-const AuthLabels: Record<AuthRoutes, string> = {
+export const AuthLabels: Record<AuthRoutes, string> = {
   [AuthRoutes.SignIn]: 'Sign in',
   [AuthRoutes.SignUp]: 'Sign up',
+};
+
+const AuthIcons: Record<AuthRoutes, React.ReactNode> = {
+  [AuthRoutes.SignIn]: <IconLogin stroke={2} />,
+  [AuthRoutes.SignUp]: <IconUserPlus stroke={2} />,
 };
 
 const Header = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const isMobile = useMediaQuery('(max-width: 768px)');
   const [opened, { toggle: toggleBurgerMenu }] = useDisclosure();
   const { toggleColorScheme, colorScheme, getColor } = useTheme();
   const user = useUser();
@@ -37,7 +51,7 @@ const Header = () => {
     void router.push(link);
   };
 
-  const logout = async () => {
+  const handleSignOut = async () => {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
@@ -65,6 +79,7 @@ const Header = () => {
 
       router.refresh();
       router.push(PATHS.root);
+      toggleBurgerMenu();
     } catch (error) {
       const e = error as Error;
       notifications.show({
@@ -82,102 +97,79 @@ const Header = () => {
   return (
     <Flex justify="space-between" p="sm">
       <Loader isLoading={isLoading} />
+
       <Logo />
+
       {user ? (
-        <Flex gap={12} align={'center'}>
-          <Button variant={'subtle'} color={getColor('text')} onClick={() => toggleColorScheme()}>
-            {colorScheme === 'light' ? <IconMoonStars stroke={2} /> : <IconSunHigh stroke={2} />}
-          </Button>
-          <Flex gap={8} align={'center'}>
-            <IconUser stroke={2} />
-            <Text>{user?.email || 'User'}</Text>
-          </Flex>
-          <Button variant={'default'} onClick={logout}>
-            Log out
-          </Button>
-        </Flex>
+        <UserMenu onToggleBurgerMenu={toggleBurgerMenu} opened={opened} onSignOut={handleSignOut} />
       ) : (
-        <>
-          {isMobile ? (
-            <Group>
-              <Burger opened={opened} onClick={toggleBurgerMenu} color={getColor('text')} />
-              <Flex
-                direction={'column'}
-                gap={8}
-                style={{
-                  display: `${opened ? 'flex' : 'none'} `,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  zIndex: 1000,
-                  width: '100%',
-                  height: '100%',
-                  padding: '60px 20px 40px 20px',
-                  backgroundColor: `${getColor('background')}`,
+        <Menu opened={opened} onToggleBurgerMenu={toggleBurgerMenu} onNavigate={handleNavigate} />
+      )}
+
+      <CustomDrawer title={'Menu'} opened={opened} onClose={toggleBurgerMenu}>
+        {user ? (
+          <>
+            <Button
+              variant={'subtle'}
+              justify={'start'}
+              color={getColor('text')}
+              leftSection={<IconUser stroke={2} color={getColor('text')} />}
+              onClick={() => {}}
+            >
+              {user?.email || 'User'}
+            </Button>
+            <Button
+              variant={'subtle'}
+              justify={'start'}
+              color={getColor('text')}
+              leftSection={
+                colorScheme === 'light' ? <IconMoonStars stroke={2} /> : <IconSunHigh stroke={2} />
+              }
+              onClick={() => toggleColorScheme()}
+            >
+              {colorScheme}
+            </Button>
+            <Button
+              variant={'subtle'}
+              justify={'start'}
+              color={getColor('text')}
+              leftSection={<IconLogout2 stroke={2} />}
+              onClick={handleSignOut}
+            >
+              Sign out
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant={'subtle'}
+              justify={'start'}
+              color={getColor('text')}
+              leftSection={
+                colorScheme === 'light' ? <IconMoonStars stroke={2} /> : <IconSunHigh stroke={2} />
+              }
+              onClick={() => toggleColorScheme()}
+            >
+              {colorScheme}
+            </Button>
+            {Object.values(AuthRoutes).map((route) => (
+              <Button
+                key={route}
+                variant={'subtle'}
+                color={getColor('text')}
+                justify={'start'}
+                leftSection={AuthIcons[route]}
+                onClick={() => {
+                  toggleBurgerMenu();
+                  handleNavigate(route);
                 }}
               >
-                <Button
-                  variant={'subtle'}
-                  style={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                  }}
-                  color={getColor('text')}
-                  onClick={toggleBurgerMenu}
-                >
-                  <IconX stroke={2} />
-                </Button>
-                <Button
-                  variant={'subtle'}
-                  color={getColor('text')}
-                  onClick={() => toggleColorScheme()}
-                >
-                  {colorScheme === 'light' ? (
-                    <IconMoonStars stroke={2} />
-                  ) : (
-                    <IconSunHigh stroke={2} />
-                  )}
-                </Button>
-                {Object.values(AuthRoutes).map((route) => (
-                  <Button
-                    key={route}
-                    variant={'subtle'}
-                    color={getColor('text')}
-                    onClick={() => {
-                      toggleBurgerMenu();
-                      handleNavigate(route);
-                    }}
-                  >
-                    {AuthLabels[route]}
-                  </Button>
-                ))}
-              </Flex>
-            </Group>
-          ) : (
-            <Group gap="md">
-              <Button onClick={toggleColorScheme} variant={'default'}>
-                {colorScheme === 'light' ? (
-                  <IconMoonStars stroke={2} />
-                ) : (
-                  <IconSunHigh stroke={2} />
-                )}
+                {AuthLabels[route]}
               </Button>
-              {Object.values(AuthRoutes).map((route) => (
-                <Button
-                  key={route}
-                  variant="default"
-                  onClick={() => {
-                    handleNavigate(route);
-                  }}
-                >
-                  {AuthLabels[route]}
-                </Button>
-              ))}
-            </Group>
-          )}
-        </>
-      )}
+            ))}
+          </>
+        )}
+      </CustomDrawer>
     </Flex>
   );
 };
