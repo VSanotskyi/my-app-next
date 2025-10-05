@@ -22,8 +22,6 @@
     "@mantine/nprogress": "^8.3.2",
     "@mantine/spotlight": "^8.3.2",
     "@mantine/tiptap": "^8.3.2",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "@tabler/icons-preact": "^3.35.0",

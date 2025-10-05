@@ -1,31 +1,26 @@
 import React from 'react';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-
-import AuthProvider from '@/components/providers/AuthProvider';
-import { ClientProviders } from '@/components/providers/ClientProviders';
+import { ColorSchemeScript, Flex } from '@mantine/core';
+import Header from '@/components/layout/Header';
 
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-
 import './globals.css';
-
-import type { Database } from '@/types/supabase';
+import { ClientProviders } from '@/components/providers/ClientProviders';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const accessToken = session?.access_token || null;
-
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>Phonebook</title>
+        <ColorSchemeScript defaultColorScheme="auto" />
+      </head>
       <body>
-        <AuthProvider accessToken={accessToken}>
-          <ClientProviders>{children}</ClientProviders>
-        </AuthProvider>
+        <ClientProviders>
+          <Flex direction="column" w="100%" mih="100%">
+            <Header />
+            <main style={{ flex: 1, padding: '20px' }}>{children}</main>
+          </Flex>
+        </ClientProviders>
       </body>
     </html>
   );
