@@ -3,20 +3,20 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
-import axios from 'axios';
 import { Button, Flex, Modal, PasswordInput, Text, TextInput, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useDisclosure } from '@mantine/hooks';
 
+import { createClient } from '@/utils/supabase/component';
+
 import { signUpInitialValues, SignUpSchema } from '@/lib/authSchemas';
-import { API_ENDPOINTS } from '@/lib/api';
 import { PATHS } from '@/lib/paths';
-import { lightTheme } from '@/theme';
 
 import Loader from '@/components/ui/loader/Loader';
 
 export default function Page() {
   const router = useRouter();
+  const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [opened, { toggle: toggleOpenModal }] = useDisclosure();
 
@@ -24,34 +24,40 @@ export default function Page() {
     initialValues: signUpInitialValues,
     validationSchema: SignUpSchema,
     onSubmit: async (values, { resetForm }) => {
-      try {
-        setIsLoading(true);
-        const { email, password, name } = values;
-        const res = await axios.post(API_ENDPOINTS.signUp, { email, password, name });
+      setIsLoading(true);
 
-        if (res.status === 201) {
-          notifications.show({
-            title: 'Success',
-            message: 'User has been created successfully',
-            autoClose: 3000,
-            position: 'top-right',
-            color: lightTheme.colors!.success![9],
-          });
-          resetForm();
-          toggleOpenModal();
-        }
-      } catch (error) {
-        const e = error as Error;
+      const { email, password, name } = values;
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            user_name: name,
+          },
+        },
+      });
+
+      if (error) {
+        setIsLoading(false);
         notifications.show({
           title: 'Error',
-          message: e.message,
+          message: error.message,
           autoClose: 3000,
           position: 'top-right',
-          color: lightTheme.colors!.error![9],
         });
-      } finally {
-        setIsLoading(false);
+        return;
       }
+
+      notifications.show({
+        title: 'Success',
+        message: 'User has been created successfully',
+        autoClose: 3000,
+        position: 'top-right',
+      });
+      resetForm();
+      setIsLoading(false);
+      toggleOpenModal();
     },
   });
 
