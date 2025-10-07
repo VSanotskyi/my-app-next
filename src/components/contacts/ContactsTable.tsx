@@ -1,19 +1,27 @@
 import React, { useCallback } from 'react';
 import { format } from 'date-fns';
 import { Button, Menu, Table } from '@mantine/core';
-import { IconSettings, IconTrash, IconEdit } from '@tabler/icons-react';
+import { IconSettings, IconTrash, IconEdit, IconUser } from '@tabler/icons-react';
 
 import { Contact } from '@/lib/contactSchemas';
 
 interface IProps {
   contacts: Contact[];
-  handleOpenDeleteModal: (contactId: string) => void;
+  handleOpenDeleteModal: (contact: Contact) => void;
+  handleEditContact: (contact: Contact) => void;
 }
 
-const ContactsTable: React.FC<IProps> = ({ contacts, handleOpenDeleteModal }) => {
+const ContactsTable: React.FC<IProps> = ({
+  contacts,
+  handleOpenDeleteModal,
+  handleEditContact,
+}) => {
   const rows = useCallback(() => {
     return contacts.map((contact) => (
       <Table.Tr key={contact.id}>
+        <Table.Td>
+          <IconUser stroke={2} />
+        </Table.Td>
         <Table.Td>{contact.name}</Table.Td>
         <Table.Td>{contact.phone}</Table.Td>
         <Table.Td>{format(new Date(contact.created_at || ''), 'dd/MMMM/yyyy')}</Table.Td>
@@ -27,7 +35,12 @@ const ContactsTable: React.FC<IProps> = ({ contacts, handleOpenDeleteModal }) =>
 
             <Menu.Dropdown>
               <Menu.Label>Application</Menu.Label>
-              <Menu.Item leftSection={<IconEdit size={14} />}>Edit</Menu.Item>
+              <Menu.Item
+                leftSection={<IconEdit size={14} />}
+                onClick={() => handleEditContact(contact)}
+              >
+                Edit
+              </Menu.Item>
 
               <Menu.Divider />
 
@@ -35,7 +48,7 @@ const ContactsTable: React.FC<IProps> = ({ contacts, handleOpenDeleteModal }) =>
               <Menu.Item
                 color="red"
                 leftSection={<IconTrash size={14} />}
-                onClick={() => handleOpenDeleteModal(contact.id)}
+                onClick={() => handleOpenDeleteModal(contact)}
               >
                 Delete
               </Menu.Item>
@@ -51,6 +64,7 @@ const ContactsTable: React.FC<IProps> = ({ contacts, handleOpenDeleteModal }) =>
       <Table striped highlightOnHover withTableBorder horizontalSpacing="md">
         <Table.Thead>
           <Table.Tr>
+            <Table.Th></Table.Th>
             <Table.Th>Name</Table.Th>
             <Table.Th>Phone number</Table.Th>
             <Table.Th>Created at</Table.Th>

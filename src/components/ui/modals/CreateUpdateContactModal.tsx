@@ -1,38 +1,57 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, InputBase, Modal, TextInput, Title } from '@mantine/core';
 import { useFormik } from 'formik';
 import { IMaskInput } from 'react-imask';
 
-import { contactSchema, createContactInitialValues } from '@/lib/contactSchemas';
+import { Contact, contactSchema, createContactInitialValues } from '@/lib/contactSchemas';
 
 interface IProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: typeof createContactInitialValues) => void;
+  onCreate: (values: typeof createContactInitialValues) => void;
+  onUpdate: (values: typeof createContactInitialValues) => void;
   userId: string;
   title?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  contact: Contact | null;
 }
 
-const CreateContactModal: React.FC<IProps> = ({
+const CreateUpdateContactModal: React.FC<IProps> = ({
   isOpen,
   onClose,
   title,
   size,
-  onSubmit,
+  onCreate,
+  onUpdate,
   userId,
+  contact,
 }) => {
   const formik = useFormik({
     initialValues: { ...createContactInitialValues, user_id: userId },
     validationSchema: contactSchema,
     onSubmit: (values) => {
-      onSubmit(values);
-      formik.resetForm();
+      if (contact) {
+        onUpdate(values);
+      } else {
+        onCreate(values);
+      }
       onClose();
+      formik.resetForm();
     },
   });
 
-  console.log('>>>error: ', formik.errors);
+  useEffect(() => {
+    if (contact) {
+      formik.setValues({
+        id: contact.id || '',
+        name: contact.name || '',
+        phone: contact.phone || '',
+        user_id: contact.user_id || '',
+      });
+    } else {
+      formik.resetForm();
+    }
+  }, [contact]);
 
   return (
     <Modal opened={isOpen} onClose={onClose} title={title} size={size}>
@@ -57,6 +76,7 @@ const CreateContactModal: React.FC<IProps> = ({
           placeholder="Name"
           w={'100%'}
           withAsterisk
+          value={formik.values.name}
           error={formik.touched.name && formik.errors.name ? `${formik.errors.name}` : undefined}
           onChange={formik.handleChange}
         />
@@ -67,6 +87,7 @@ const CreateContactModal: React.FC<IProps> = ({
           mask="+380 (00) 000-00-00"
           w={'100%'}
           withAsterisk
+          value={formik.values.phone || ''}
           error={formik.touched.phone && formik.errors.phone ? `${formik.errors.phone}` : undefined}
           onChange={formik.handleChange}
           onInput={formik.handleChange}
@@ -80,4 +101,4 @@ const CreateContactModal: React.FC<IProps> = ({
   );
 };
 
-export default CreateContactModal;
+export default CreateUpdateContactModal;

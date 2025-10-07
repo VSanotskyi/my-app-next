@@ -9,7 +9,7 @@ import { createClient } from '@/utils/supabase/component';
 import { ICreateContact, Contact } from '@/lib/contactSchemas';
 
 import Loader from '@/components/ui/loader/Loader';
-import CreateContactModal from '@/components/ui/modals/CreateContactModal';
+import CreateUpdateContactModal from '@/components/ui/modals/CreateUpdateContactModal';
 import ContactsTable from '@/components/contacts/ContactsTable';
 import DeleteContactModal from '@/components/ui/modals/DeleteContactModal';
 
@@ -17,7 +17,7 @@ const Page = () => {
   const { isLoading: authLoading, user } = useCheckAuth();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [contactsLoading, setContactsLoading] = useState(true);
-  const [deleteContactIs, setDeleteContactIs] = useState('');
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [createModalOpened, { toggle: toggleCreateModal }] = useDisclosure(false);
   const [deleteModalOpened, { toggle: toggleDeleteModal }] = useDisclosure(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,24 +40,53 @@ const Page = () => {
     }
   };
 
+  const handleUpdateContact = async (values: ICreateContact) => {
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .update({ name: values.name, phone: values.phone })
+        .eq('id', values.id)
+        .select()
+        .single();
+      if (error) {
+        console.error('Error updating contact:', error);
+        return;
+      }
+      if (data) {
+        setContacts((prev) =>
+          prev.map((contact) => (contact.id === data.id ? (data as Contact) : contact)),
+        );
+        setSelectedContact(null);
+        toggleCreateModal();
+      }
+    } catch (error) {
+      console.error('Error updating contact:', error);
+    }
+  };
+
   const handleDeleteContact = async () => {
     try {
-      const { error } = await supabase.from('contacts').delete().eq('id', deleteContactIs);
+      const { error } = await supabase.from('contacts').delete().eq('id', selectedContact?.id);
       if (error) {
         console.error('Error deleting contact:', error);
         return;
       }
-      setContacts((prev) => prev.filter((contact) => contact.id !== deleteContactIs));
-      setDeleteContactIs('');
+      setContacts((prev) => prev.filter((contact) => contact.id !== selectedContact?.id));
+      setSelectedContact(null);
       toggleDeleteModal();
     } catch (error) {
       console.error('Error deleting contact:', error);
     }
   };
 
-  const handleOpenDeleteModal = (contactId: string) => {
-    setDeleteContactIs(contactId);
+  const handleOpenDeleteModal = (contact: Contact) => {
+    setSelectedContact(contact);
     toggleDeleteModal();
+  };
+
+  const handleOpenEditContactModal = (contact: Contact) => {
+    setSelectedContact(contact);
+    toggleCreateModal();
   };
 
   const fetchUserContacts = useCallback(async () => {
@@ -110,17 +139,23 @@ const Page = () => {
         {contactsLoading ? (
           <Loader isLoading={contactsLoading} />
         ) : contacts.length > 0 ? (
-          <ContactsTable contacts={contacts} handleOpenDeleteModal={handleOpenDeleteModal} />
+          <ContactsTable
+            contacts={contacts}
+            handleOpenDeleteModal={handleOpenDeleteModal}
+            handleEditContact={handleOpenEditContactModal}
+          />
         ) : (
           <Text mt="md">Contacts not found.</Text>
         )}
       </Flex>
       {user && user.id && (
-        <CreateContactModal
+        <CreateUpdateContactModal
           isOpen={createModalOpened}
           onClose={toggleCreateModal}
-          onSubmit={handleCreateNewContact}
+          onCreate={handleCreateNewContact}
+          onUpdate={handleUpdateContact}
           userId={user?.id}
+          contact={selectedContact}
         />
       )}
 
