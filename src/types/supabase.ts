@@ -16,25 +16,25 @@ export type Database = {
     Tables: {
       contacts: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           name: string
           phone: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           name: string
           phone?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           name?: string
           phone?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -6,6 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:push": "supabase db push",
+    "supabase:reset": "supabase db reset",
     "lint": "eslint"
   },
   "dependencies": {
@@ -34,6 +38,7 @@
     "axios": "^1.12.2",
     "cookie": "^1.0.2",
     "cookies-next": "^6.1.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.18",
     "embla-carousel": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
@@ -42,6 +47,8 @@
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-imask": "^7.6.1",
+    "react-input-mask": "^2.0.4",
     "recharts": "^3.2.1",
     "yup": "^1.7.1"
   },
@@ -53,6 +60,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-input-mask": "^3.0.6",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "postcss": "^8.5.6",

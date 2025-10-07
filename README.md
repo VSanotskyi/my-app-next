@@ -1,36 +1,182 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My app nextjs
 
-## Getting Started
+## Installation
 
-First, run the development server:
-
+### Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+git clone https://github.com/VSanotskyi/my-app-next.git
+cd my-app-next
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install dependencies:
+```bash
 
-You can start editing the page by modifying `app/404.tsx`. The page auto-updates as you edit the file.
+pnpm install
+````
+or
+```bash
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+npm install
+````
+or
+```bash
 
-## Learn More
+yarn
+```
+*** ***	
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Create a .env.local file in the root of the project and add the following:
+for production
+```env
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+NEXT_PUBLIC_SUPABASE_URL=your_api_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_api_key
+```
+for development
+```env
 
-## Deploy on Vercel
+NEXT_PUBLIC_LOCAL_SUPABASE_URL=your_api_url
+NEXT_PUBLIC_LOCAL_PUBLISHABLE_KEY=your_api_key
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Make sure all keys are set correctly, otherwise the app will throw an error on startup.
+*** ***	
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Development
+
+### Start the development server:
+```bash
+
+pnpm dev
+```
+or
+```bash
+
+npm run dev
+```
+or
+```bash
+
+yarn dev
+```
+
+Open http://localhost:3000 to view it in the browser.
+
+### Run the production build locally:
+```bash
+
+pnpm build
+```
+or
+```bash
+
+npm run build
+```
+or
+```bash
+
+yarn build
+```
+
+*** ***
+
+## Running Supabase Locally
+
+If you want to run the database and auth server locally, make sure you have the Supabase CLI installed:  
+https://supabase.com/docs/guides/cli
+
+1. **Install Supabase CLI (Mac)**
+   ```bash
+   brew install supabase/tap/supabase
+   ```
+   
+2. **Check Supabase version**
+   ```bash
+   supabase --version
+   ```
+   
+3. Authenticate with Supabase (if not done yet)
+   ```bash
+   supabase login
+   ```
+   
+4. **Initialize local Supabase (if not done yet)**
+   ```bash
+   supabase init
+   ```
+   
+5. Connect to your Supabase project
+   ```bash
+   supabase link --project-ref your_project_ref
+   ```
+   
+6. **Create environment variables** <br/>
+   Create a `.env` file in the root of the project and add the following:
+   ```env
+   NEXT_PUBLIC_LOCAL_SUPABASE_URL=your_api_url
+   NEXT_PUBLIC_LOCAL_PUBLISHABLE_KEY=your_api_key
+   ```
+
+7. **Start Supabase services**
+   ```bash
+   supabase start
+   ```
+   If you see errors like "container is not running", try troubleshooting:
+
+    ```bash
+    supabase stop
+    supabase start debug
+    ```
+   
+8. **Stop Supabase services**
+   ```bash
+    supabase stop
+    ```
+*** ***
+
+## Migration
+### To create a new migration, run:
+```bash
+
+supabase migration new migration_name
+```
+
+### To apply migrations, run:
+```bash
+
+supabase db push
+```
+
+### Link your local project to the remote Supabase project
+```bash
+
+supabase link --project-ref your_project_ref
+```
+### Push migrations to the remote database 
+```bash
+
+supabase db push 
+```
+
+*** ***
+
+## Folder Structure
+
+```.
+├── public/                  # Static files
+├── src/
+│   ├── app/                 # Application routes and components
+│   ├── components/          # Reusable UI components
+│   ├── hooks/               # Custom React hooks
+│   ├── lib/                 # Library files (e.g., Supabase client)
+│   ├── theme/               # Mantine theme and styling
+│   ├── types/               # TypeScript types
+│   └── utils/               # Utility functions
+├── .env                     # Environment variables
+├── next.config.ts           # Next.js configuration
+├── package.json             # Project metadata and scripts
+└── README.md                # Project documentation        
+```

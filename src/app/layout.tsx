@@ -14,7 +14,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <title>Phonebook</title>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
-      <body>
+      <body data-new-gr-c-s-check-loaded="14.1256.0" data-gr-ext-installed="">
         <ClientProviders>
           <Flex direction="column" w="100%" mih="100%">
             <Header />

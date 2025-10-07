@@ -121,7 +121,12 @@ export default function Page() {
           </Button>
         </Text>
       </form>
-      <Modal opened={opened} onClose={toggleOpenModal} title={'Registration successful!'}>
+      <Modal
+        opened={opened}
+        onClose={toggleOpenModal}
+        title={'Registration successful!'}
+        onClick={() => router.push(PATHS.contacts)}
+      >
         <Text>Registration successful! Please confirm your email to complete the process.</Text>
       </Modal>
     </Flex>
