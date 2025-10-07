@@ -6,14 +6,12 @@ import { useDisclosure } from '@mantine/hooks';
 
 import { useCheckAuth } from '@/hooks/useCheckAuth';
 import { createClient } from '@/utils/supabase/component';
-import { ICreateContact } from '@/lib/contactSchemas';
+import { ICreateContact, Contact } from '@/lib/contactSchemas';
 
 import Loader from '@/components/ui/loader/Loader';
 import CreateContactModal from '@/components/ui/modals/CreateContactModal';
 import ContactsTable from '@/components/contacts/ContactsTable';
 import DeleteContactModal from '@/components/ui/modals/DeleteContactModal';
-
-import { Contact } from '@/lib/contactSchemas';
 
 const Page = () => {
   const { isLoading: authLoading, user } = useCheckAuth();
@@ -117,12 +115,14 @@ const Page = () => {
           <Text mt="md">Contacts not found.</Text>
         )}
       </Flex>
-      <CreateContactModal
-        isOpen={createModalOpened}
-        onClose={toggleCreateModal}
-        onSubmit={handleCreateNewContact}
-        userId={user?.id || ''}
-      />
+      {user && user.id && (
+        <CreateContactModal
+          isOpen={createModalOpened}
+          onClose={toggleCreateModal}
+          onSubmit={handleCreateNewContact}
+          userId={user?.id}
+        />
+      )}
 
       <DeleteContactModal
         isOpen={deleteModalOpened}

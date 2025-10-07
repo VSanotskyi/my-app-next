@@ -32,6 +32,8 @@ const CreateContactModal: React.FC<IProps> = ({
     },
   });
 
+  console.log('>>>error: ', formik.errors);
+
   return (
     <Modal opened={isOpen} onClose={onClose} title={title} size={size}>
       <form
